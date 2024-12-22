@@ -11,6 +11,7 @@ import (
 	"github.com/AkifhanIlgaz/passworless-auth-server/pkg/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	prettyLogger "github.com/rdbell/echo-pretty-logger"
 )
 
 var devCorsConfig = middleware.CORSConfig{
@@ -27,12 +28,11 @@ func main() {
 	// TODO: Use the config
 	_ = config
 
-	validator := validator.NewCustomValidator()
-
 	e := echo.New()
 
-	e.Validator = validator
-	e.Use(middleware.Logger())
+	e.Validator = validator.NewCustomValidator()
+
+	e.Use(prettyLogger.Logger)
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(devCorsConfig))
 
