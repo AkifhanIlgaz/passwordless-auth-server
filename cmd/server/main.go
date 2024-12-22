@@ -1,10 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/AkifhanIlgaz/passworless-auth-server/internal/config"
+	"github.com/AkifhanIlgaz/passworless-auth-server/internal/handler"
+	"github.com/AkifhanIlgaz/passworless-auth-server/internal/route"
+	"github.com/AkifhanIlgaz/passworless-auth-server/internal/service"
+	"github.com/AkifhanIlgaz/passworless-auth-server/pkg/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -23,19 +27,24 @@ func main() {
 	// TODO: Use the config
 	_ = config
 
+	validator := validator.NewCustomValidator()
+
 	e := echo.New()
 
+	e.Validator = validator
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(devCorsConfig))
 
-	e.GET("/", func(c echo.Context) error {
+	rg := e.Group("/api")
 
-		return c.JSON(http.StatusOK, map[string]any{
-			"status":  "success",
-			"message": "Hello World",
-		})
-	})
+	authService := service.NewAuthService()
 
-	e.Logger.Fatal(e.Start(":8000"))
+	authHandler := handler.NewAuthHandler(authService)
+
+	authRoute := route.NewAuthRoute(authHandler)
+
+	authRoute.Register(rg)
+
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.Port)))
 }
