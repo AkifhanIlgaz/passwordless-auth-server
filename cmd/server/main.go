@@ -1,12 +1,10 @@
 package main
 
-func main() {
-
-}package main
-
 import (
+	"log"
 	"net/http"
 
+	"github.com/AkifhanIlgaz/passworless-auth-server/internal/config"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -18,6 +16,13 @@ var devCorsConfig = middleware.CORSConfig{
 }
 
 func main() {
+	config, err := config.LoadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// TODO: Use the config
+	_ = config
+
 	e := echo.New()
 
 	e.Use(middleware.Logger())
