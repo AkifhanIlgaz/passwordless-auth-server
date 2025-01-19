@@ -34,6 +34,11 @@ func (h *AuthHandler) LoginWithEmail(c echo.Context) error {
 		return response.WithError(c, http.StatusBadRequest, message.EmailRequired)
 	}
 
+	// TODO: If the user is not registered, register the user
+	// TODO: If the user is registered, update the user's last login time
+	// TODO: Create OTP and store it in Redis
+	// TODO: Send the OTP to the user's email
+
 	return response.WithSuccess(c, http.StatusOK, echo.Map{})
 }
 

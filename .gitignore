@@ -1,2 +1,5 @@
 /config/
 exp/
+
+*.env
+workflow_diagrams/
