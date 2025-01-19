@@ -1,0 +1,26 @@
+sequenceDiagram
+    actor User
+    participant API
+    participant Redis
+    participant Twilio
+    participant ES as Elasticsearch
+    
+    User->>+API: POST /auth/register (email/phone)
+    API->>API: Validate input
+    
+    API->>Redis: Check if user exists
+    Redis-->>API: User exists/not exists
+    
+    alt User exists
+        API-->>User: Return 409: User already exists
+    else User doesn't exist
+        API->>Redis: Create user record
+        API->>API: Generate OTP
+        API->>Redis: Store OTP with TTL
+        
+        API->>Twilio: Send OTP
+        Twilio-->>API: Delivery status
+        
+        API->>ES: Log registration event
+        API-->>User: Return 200: Registration initiated
+    end

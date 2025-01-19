@@ -1,0 +1,23 @@
+sequenceDiagram
+    actor User
+    participant API
+    participant Redis
+    participant ES as Elasticsearch
+    
+    User->>+API: Request with session token
+    API->>API: Extract session token
+    
+    API->>Redis: Validate session
+    Redis-->>API: Session data
+    
+    alt Invalid session
+        API-->>User: Return 401: Invalid session
+    else Expired session
+        API-->>User: Return 401: Session expired
+    else Valid session
+        API->>Redis: Update last activity
+        API->>API: Process request
+        
+        API->>ES: Log activity
+        API-->>User: Return 200: Response data
+    end

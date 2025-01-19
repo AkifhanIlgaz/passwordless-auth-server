@@ -1,0 +1,19 @@
+sequenceDiagram
+    actor User
+    participant API
+    participant Redis
+    participant ES as Elasticsearch
+    
+    User->>+API: POST /auth/logout
+    API->>API: Extract session token
+    
+    API->>Redis: Get session
+    Redis-->>API: Session data
+    
+    alt Valid session
+        API->>Redis: Delete session
+        API->>ES: Log logout event
+        API-->>User: Return 200: Logged out
+    else Invalid session
+        API-->>User: Return 401: Invalid session
+    end

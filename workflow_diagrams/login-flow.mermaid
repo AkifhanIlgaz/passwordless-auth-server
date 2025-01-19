@@ -1,0 +1,25 @@
+sequenceDiagram
+    actor User
+    participant API
+    participant Redis
+    participant Twilio
+    participant ES as Elasticsearch
+    
+    User->>+API: POST /auth/login/init (email/phone)
+    API->>API: Validate input
+    
+    API->>Redis: Find user
+    Redis-->>API: User data
+    
+    alt User not found
+        API-->>User: Return 404: User not found
+    else User found
+        API->>API: Generate OTP
+        API->>Redis: Store OTP with TTL
+        
+        API->>Twilio: Send OTP
+        Twilio-->>API: Delivery status
+        
+        API->>ES: Log login attempt
+        API-->>User: Return 200: OTP sent
+    end

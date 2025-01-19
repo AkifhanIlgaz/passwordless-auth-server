@@ -1,0 +1,22 @@
+sequenceDiagram
+    actor User
+    participant API
+    participant Redis
+    participant ES as Elasticsearch
+    
+    User->>+API: POST /auth/login/verify (OTP)
+    API->>API: Validate input
+    
+    API->>Redis: Get stored OTP
+    Redis-->>API: OTP data
+    
+    alt Invalid or expired OTP
+        API-->>User: Return 401: Invalid OTP
+    else Valid OTP
+        API->>API: Generate session token
+        API->>Redis: Store session with TTL
+        API->>Redis: Delete used OTP
+        
+        API->>ES: Log successful login
+        API-->>User: Return 200: Session token
+    end
